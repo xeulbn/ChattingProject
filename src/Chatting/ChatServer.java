@@ -185,6 +185,19 @@ public class ChatServer {
         }
 
         private void showRoomUsers() {
+            if(clientRooms.containsKey(nickname)){
+                int clientRoom = clientRooms.get(nickname);
+                StringBuilder usersInRoom= new StringBuilder();
+                usersInRoom.append(clientRoom).append("번 방의 사용자 목록\n");
+                for(Map.Entry<String, Integer> entry : clientRooms.entrySet()) {
+                    if(entry.getValue() == clientRoom){
+                        usersInRoom.append(entry.getKey()).append("\n");
+                    }
+                }
+                writer.println(usersInRoom.toString());
+            }else{
+                writer.println("방에 입장하지 않으셨습니다.");
+            }
         }
 
         private void exitRoom() {
