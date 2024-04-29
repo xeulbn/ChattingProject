@@ -3,10 +3,8 @@ package Chatting;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 public class ChatServer {
@@ -15,6 +13,7 @@ public class ChatServer {
     private static List<String> roomList = new ArrayList<>();
     private static Map<String, PrintWriter> clientWriters = new HashMap<>();
     private static Map<String, Integer> clientRooms = new HashMap<>();
+    private static final String CHAT_LOG_FILE = "chatlog.txt";
 
     public static void main(String[] args) {
         try(ServerSocket serverSocket = new ServerSocket(PORT)){
@@ -77,6 +76,7 @@ public class ChatServer {
                         handleCommand(inputLine);
                     } else {
                         broadcastMessage(nickname + ": " + inputLine);
+                        saveChat(nickname,inputLine); //채팅내용을 로그파일에 저장
                     }
                 }
 
@@ -218,6 +218,18 @@ public class ChatServer {
             }
         }
 
+        private void saveChat(String nickname, String message){
+            try(FileWriter fileWriter = new FileWriter(CHAT_LOG_FILE,true)){
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String timestamp = simpleDateFormat.format(new Date());
+                bufferedWriter.write("["+timestamp+"]"+nickname+": "+message);
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
+            }catch(IOException e){
+                System.out.println("채팅을 저장하는 중에 오류가 발생하였습니다: "+e.getMessage());
+            }
+        }
 
         private void sendCommandList() {
             writer.println("명령어 모음:\n" +
